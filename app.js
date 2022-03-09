@@ -1,16 +1,16 @@
 const express = require('express');
 
+const path = require('path');
+
 const app = express();
 
-app.get('/', (req, res) => {
+//MIDDLEWARES
+app.use(express.static('public'));  //index.html,css gibi statik dosyaları ekleme
 
-    const photo = {
-        id: 1,
-        name: "Photo Name",
-        description: "Photo Description"
-    }
-    res.send(photo)
-})
+app.get('/', (req, res) => {
+  //template klasöründeki index.html dosyasını resolve olarak döndürme
+  res.sendFile(path.resolve(__dirname, 'template/index.html'));
+});
 
 const port = 3000;
 app.listen(port, () => {
