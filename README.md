@@ -270,3 +270,55 @@ app.use(express.json()) //url deki datayı json formatına dönüştürmemizi sa
 
 ![pcatrequestbody](https://user-images.githubusercontent.com/86554799/158062559-857259e1-9e6c-4384-a05e-a9e942d18865.jpg)
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Model Oluşturma ve Dinamik Yapı Kurma
+Bu uygulamada gelen photo bilgilerini yakalayıp oluşturacağımı model ile veritabanına bir döküman olarak yazdırıp sonrasında bu verileri uygun yerde listeleme işlemi yapacağım. 
+
+- Bunun için ilk yapılması gereken ihtiyac duyulan olan modeli oluşturmak. Modeli oluşturma için proje dosyasına models adlı klasör oluşturdum ve bu klasörün içerisine Photo.js dosyasını oluşturdum. Bu dosyanın içerisine gerekli işlemleri yapan kod bloğunu yazdım.
+
+![pcatmodels](https://user-images.githubusercontent.com/86554799/158063869-cd362f7a-1c72-4f04-80b6-7425d406ff71.jpg)
+
+- Daha sonrasında bu modeli add.js de çağırdım.
+
+`const Photo = require('./models/Photo') //modelimizi app.js dosyasına dahil etme`
+
+- Sonrasında da POST metodu ile gelen veriyi model dosyası ile yakalayıp veritabanına gönderdim. Bunun için de şu kodlardan faydalandım.
+
+ ```
+ app.post('/photos', async  (req, res) => {
+  //Uygulamamızdaki .post metodunu düzenlersek, add.ejs de formda grirlen bilgileri tutar ve '/' dosyasına yani index.ejs dosyasına yönlendirme yapar.
+ await Photo.create(req.body)
+  res.redirect('/')
+});
+ ```
+ 
+![pcataddphoto4](https://user-images.githubusercontent.com/86554799/158065992-9bceafe0-f43a-489c-aac2-d67acf042a86.jpg)
+
+**Anasayfaya Yönlendirir.**
+
+![pcatanasayfa2](https://user-images.githubusercontent.com/86554799/158066010-bf3f6be0-5879-472b-9b27-43f274a726b0.jpg)
+
+**VeriTabanına Ekler.**
+
+![pcatmongodb](https://user-images.githubusercontent.com/86554799/158066031-3e4f2b07-6f53-4218-9bd5-e25a85e20ce2.jpg)er
+
+- Bu verileri anasayfada sıralamak için de şu kodlardan yararlandım:
+
+```
+//ROUTES
+app.get('/', async (req, res) => {
+  //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
+  const photos = await  Photo.find({})
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
+  res.render('index', {
+    photos
+  });
+});
+```
+- En sonunda ilgili template in veritabanındaki özellikleri alması yani listelemesi için gerekli kod eklemelerini index.ejs dosyasında yaparız.
+
+![pcatindexejs](https://user-images.githubusercontent.com/86554799/158068108-f4d44d6f-7b32-469e-b847-9e041a491a21.jpg)
+
+![pcataddphoto5](https://user-images.githubusercontent.com/86554799/158068218-412e3f0b-d3c7-4379-be5e-7fa3a52c2130.jpg)
+
+
