@@ -238,3 +238,35 @@ Photo.findByIdAndDelete(id, (err, data) => {
 
 ![mongo1](https://user-images.githubusercontent.com/86554799/158026931-71a8047b-9d9d-438a-9a2c-ec486e53c32a.jpg)
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Request Body Nesnesini Kullanarak Fotoğraf Bilgisini Ekrana Taşımak
+- İlk başta add photo sayfasındaki form bölümünde yükleceğimiz fotoğrafın title, description ve fotoğraf yükleme kısmı olacak şekilde form alanınnı add.ejs dosyasında düzenledim.
+
+![pcataddphoto2](https://user-images.githubusercontent.com/86554799/158058655-9d294762-817c-4880-a4df-9e79b7b29bb2.jpg)
+
+- Daha sonra uygulamanı add photo sayfasından yükleyeceğimiz fotoğraf bilgisini bir şekilde anasayfaya taşımak istedim. Bunun için de add.ejs dosyasındaki yani add photo sayfasında  kullanacağız metot POST ve action='/photos' olacak şekilde düzzenledim.
+
+- Sonrasında "add photo" sayfadan gelen post metodunu yakalamak için ilgili yönlendirmeyi yakalayıp, consolda request nesnesinden gelen body bilgisini yakalamak için gerekl, kodları yazdım.
+
+```
+  app.post('/photos', (req, res) => {
+  console.log(req.body);
+  res.redirect('/')
+});
+```
+
+- Add photo sayfasından bilgileri gönderildiğinde console da undefined sonucu ortaya çıkıyor. Bunun nedeni body ile saklanan verinin yakalanamıyor olması. Bu body bilgisini yakalamak için 2 adet middleware fonksiyonunu kullanmak gerekir. Daha sonradan bu fonksiyonları ekledim.
+
+```
+//MIDDLEWARES
+app.use(express.static('public')); //index.html,css gibi statik dosyaları ekleme
+app.use(express.urlencoded({extended:true})) //url deki datayı okumamızı sağlar
+app.use(express.json()) //url deki datayı json formatına dönüştürmemizi sağlar.
+```
+
+- Bunun sonucunda bilgileri tekrar gönderdiğimde console da body bilgisini bir nesne halinde yakalamış oldum. Ayrıca res.redirect('/') nedeniyle ana sayfaya yönlendirme işlemini yaptım.
+
+![pcataddphoto3](https://user-images.githubusercontent.com/86554799/158062535-ba12c237-99eb-47cc-8539-8df953ddf07d.jpg)
+
+![pcatrequestbody](https://user-images.githubusercontent.com/86554799/158062559-857259e1-9e6c-4384-a05e-a9e942d18865.jpg)
+
