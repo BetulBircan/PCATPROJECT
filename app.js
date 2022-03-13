@@ -1,8 +1,18 @@
 const express = require('express'); //express i app.js sayfasına dahil etme
 
+const mongoose = require('mongoose'); //mongoose u kullanmak için app.js dosyasına ekliyoruz.
+
 const ejs = require('ejs'); //ejs tempalte şablonunu kullanmak için ejs modülünü app.js sayfasına dahil etme
 
+const Photo = require('./models/Photo') //modelimizi app.js dosyasına dahil etme
+
 const app = express();
+
+//Connect db-mongoose.connect('veritabanı://localbağlantı(bağlanacağın yer)/veritabanıadı')
+mongoose.connect('mongodb://localhost/pcat-test-db', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 /*EJS modülü template dosyaları görebilmek için varsayılan olarak views klasörünün içerisindeki .ejs uzantılı dosyalara bakar. Bu ne denle temp dosyamızın ismini views olarak değiştiriyoruz. Videws klasörü içerisindeki tüm .html uzantılarını .ejs olarak değiştiriyoruz.  */
 
@@ -14,9 +24,13 @@ app.use(express.static('public')); //index.html,css gibi statik dosyaları eklem
 app.use(express.urlencoded({extended:true})) //url deki datayı okumamızı sağlar
 app.use(express.json()) //url deki datayı json formatına dönüştürmemizi sağlar.
 //ROUTES
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
+  const photos = await  Photo.find({})
   //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
-  res.render('index');
+  res.render('index', {
+    photos
+  });
 });
 
 app.get('/about', (req, res) => {
@@ -28,9 +42,9 @@ app.get('/add', (req, res) => {
   res.render('add');
 });
 
-app.post('/photos', (req, res) => {
-  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
-  console.log(req.body)
+app.post('/photos', async  (req, res) => {
+  //Uygulamamızdaki .post metodunu düzenlersek, add.ejs de formda grirlen bilgileri tutar ve '/' dosyasına yani index.ejs dosyasına yönlendirme yapar.
+ await Photo.create(req.body)
   res.redirect('/')
 });
 
