@@ -128,9 +128,9 @@ fonksiyon ile uygulamada ejs modülünü kullanacağımı belirttim.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Veritabanı CRUD İşlemleri
-Uygulamamızın sayfalarına ulaşabiliyoruz. Ancak hala uygulama verilerimizi tamamı statik bir şekilde template dosyalarının içerisinde bulunuyor. Bir uygulama oluşturmanın temel mantığı nedir? Uygulamamızdaki verileri gerektiğinde silmek, güncellemek, yeni veri yüklemek ve bu değişimleri görmek isteriz.
+Uygulamamızın sayfalarına ulaşabiliyoruz. Ancak hala uygulama verilerimizin tamamı statik bir şekilde template dosyalarının içerisinde bulunuyor. Bir uygulama oluşturmanın temel mantığı nedir? Uygulamamızdaki verileri gerektiğinde silmek, güncellemek, yeni veri yüklemek ve bu değişimleri görmektir.
 
-Bunun için verilemizin uygulamamızın dışında başka bir yazılımlarda bulundurmak en kolay yöntemdir. Bu yazılımlara veritabanı denir. Ben MongoDB veri tabanından yararlanacağım. MongoDB bir NoSQL veri tabanıdır. Node.js de ennsık kullanılan veri tabanlarından biridir çünkü yapısı json dökümanına benzer.
+Bunun için verilemizi uygulamamızın dışında başka bir yazılımlarda bulundurmak en kolay yöntemdir. Bu yazılımlara veritabanı denir. Ben MongoDB veri tabanından yararlanacağım. MongoDB bir NoSQL veri tabanıdır. Node.js de en sık kullanılan veri tabanlarından biridir çünkü yapısı json dökümanına benzer.
 
 Biz Node.js http çekirdek modülü sayesinde kendi web sunucumuzu yazabiliriz, ancak bizim açımızdan yönlendirmeleri (routes) daha kolay yapabilmek ve başka avantajları sayesinde express modülünü kullandık. Aynı şekilde biz veritabanımızda oluşturmak istediğimiz dökümanları mongoDB ile oluşturabiliyoruz.
 
@@ -150,7 +150,7 @@ const Schema = mongoose.Schema;
 
 ```
 
-- Veritabanına bağlanmak için connect metdonu kullanacağız. Veritabanı adı pcat test-db. Sonrasında hata almamak için useNewUrlParser ve useUnifiedTopology parametrelerini ekleyeceğim.
+- Veritabanına bağlanmak için connect metodnu kullanacağız. Veritabanı adı "pcat test-db". Sonrasında hata almamak için useNewUrlParser ve useUnifiedTopology parametrelerini ekleyeceğim.
 
 ```
 //Connect db-mongoose.connect('veritabanı://localbağlantı(bağlanacağın yer)/veritabanıadı')
