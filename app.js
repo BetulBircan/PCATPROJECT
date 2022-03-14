@@ -34,10 +34,11 @@ app.get('/', async (req, res) => {
 });
 
 //unique değer olan id özelliğini yakalayıp o id ye ait fotoğraf için photo.ejs dosyasını render etme
-app.get('/photos:id', async(req, res) => {
+app.get('/photos/:id', async (req, res) => {
   //fotoğrafin id sine göre listeleme
   const photo = await  Photo.findById(req.params.id)
   //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photo' isteğine karşılık photo.ejs dosyasını render ederiz.
+  //Burada photo değişkenine gelen fotoğrafın özelliklerini photo.ejs dosyasına eklemiş oluyoruz.
   res.render('photo', {
     photo
   })
