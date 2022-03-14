@@ -2,7 +2,7 @@ const express = require('express'); //express i app.js sayfasına dahil etme
 
 const mongoose = require('mongoose'); //mongoose u kullanmak için app.js dosyasına ekliyoruz.
 
-const ejs = require('ejs'); //ejs tempalte şablonunu kullanmak için ejs modülünü app.js sayfasına dahil etme
+const ejs = require('ejs'); //ejs template şablonunu kullanmak için ejs modülünü app.js sayfasına dahil etme
 
 const Photo = require('./models/Photo') //modelimizi app.js dosyasına dahil etme
 
@@ -33,12 +33,22 @@ app.get('/', async (req, res) => {
   });
 });
 
+//unique değer olan id özelliğini yakalayıp o id ye ait fotoğraf için photo.ejs dosyasını render etme
+app.get('/photos:id', async(req, res) => {
+  //fotoğrafin id sine göre listeleme
+  const photo = await  Photo.findById(req.params.id)
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photo' isteğine karşılık photo.ejs dosyasını render ederiz.
+  res.render('photo', {
+    photo
+  })
+});
+
 app.get('/about', (req, res) => {
-  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/about' isteğine karşılık about.ejs dosyasını render ederiz.
   res.render('about');
 });
 app.get('/add', (req, res) => {
-  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/'add isteğine karşılık add.ejs dosyasını render ederiz.
   res.render('add');
 });
 
