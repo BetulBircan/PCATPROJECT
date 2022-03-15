@@ -6,6 +6,8 @@ const fileUpload = require('express-fileupload'); //express-fileupload ı kullan
 
 const ejs = require('ejs'); //ejs template şablonunu kullanmak için ejs modülünü app.js sayfasına dahil etme
 
+const fs = require('fs'); //dosya işlemleri için(dosya oluşturmaisilmeiokuma, vb) fs modülünü app.js dosyasına ekleme
+
 const Photo = require('./models/Photo'); //modelimizi app.js dosyasına dahil etme
 
 const app = express();
@@ -58,12 +60,38 @@ app.get('/add', (req, res) => {
 });
 
 app.post('/photos', async (req, res) => {
+  // req.files.image ile yüklediğimiz image ile ilgili bilgiler yer alır.
+  // console.log(req.files.image)
 
-  console.log(req.files.image)
-  
   //Uygulamamızdaki .post metodunu düzenlersek, add.ejs de formda grirlen bilgileri tutar ve '/' dosyasına yani index.ejs dosyasına yönlendirme yapar.
-  await Photo.create(req.body);
-  res.redirect('/');
+  // await Photo.create(req.body);
+  // res.redirect('/');
+
+  //Oluşturulmak istenen dosya
+  const uploadDir = 'public/uploads';
+
+  //eğer uploads klasörü yoksa public klasörünün içerisine oluşturma
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
+  //yüklenecek fotoğraf ile ilgili verilerin tutulması için
+  let uploadedImage = req.files.image;
+  //yüklenecek fotoğrafın gösterileceği yol yani adresi/__dirname(dosyanın kendisi+'fotoğrafın bulunacağı yol'+fotoğrafın adı)
+  let uploadPath = __dirname + '/public/uploads/' + uploadedImage.name;
+
+  //uzak sunucuda yani serverımızda başka klasöre ekleme
+  uploadedImage.mv(
+    uploadPath,
+    //fotoğrafın bilgilerine ek olarak fotoğrafın kendisini de yüklemek için ve bu fotoğrafın yoluyla brilikte veritabanına kaydetmek için post metoduyla gönderme
+    async () => {
+      await Photo.create({
+        ...req.body,
+        image: '/uploads/' + uploadedImage.name,
+      });
+      res.redirect('/');
+    }
+  );
 });
 
 const port = 3000;
