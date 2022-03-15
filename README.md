@@ -398,3 +398,150 @@ app.get('/photos/:id', async (req, res) => {
 ![pcatanasayfa](https://user-images.githubusercontent.com/86554799/158261231-c700c051-4fc2-4c79-a185-5eef54657327.jpg)
  
 ![pcatphotoejs](https://user-images.githubusercontent.com/86554799/158261255-05acccff-d60e-4bc4-8090-9782b6bd7321.jpg)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Fotoğraf Yüklemek
+- Bu uygulamada Add New Photo sayfasında fotoğraf yükleme işlemini yapacağım.
+- Bunun için ilk başta fotoğrafın yüklenebilmesi için express-fileupload modülünü `npm i express-fileupload` yardımıyla proje klasörüne dahil ettim.
+- Dahil ettikten sonra express-fileupload modülünü app.js dosyasına dahil ettim ve middleware olarak kullanıma hazır hale getirdim.
+
+```
+const fileUpload = require('express-fileupload'); //express-fileupload ı kullanmak için app.jsdosyasına ekliyoruz.
+
+//MIDDLEWARES
+app.use(express.static('public')); //index.html,css gibi statik dosyaları ekleme
+app.use(express.urlencoded({ extended: true })); //url deki datayı okumamızı sağlar
+app.use(express.json()); //url deki datayı json formatına dönüştürmemizi sağlar.
+app.use(fileUpload()); //fileupload modülünü middleware olrak kullandığımızı belirtiyoruz.
+
+```
+- **Not:** Görseli göndermek için formumuzda ilgili input alanının, name="image" ve type="file" olduğuna dikkat etmek gerekir. Ayrıca görsel göndermek için encType="multipart/form-data" eklememiz gerekir.
+
+ ```
+ 
+                        <div class="row">
+                            <div class="col-lg-12 mb-5">
+                                <form method="POST" action="/photos" class="tm-contact-form" enctype="multipart/form-data">
+                                  <div class="form-group">
+                                    <input type="text" name="title" class="form-control rounded-0" placeholder="Photo Title" required>
+                                  </div>
+                                  
+                                  <div class="form-group">
+                                    <textarea rows="8" name="description" class="form-control rounded-0" placeholder="Photo Description"
+                                              required></textarea>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <input type="file" name="image" class="form-control-file rounded-0">
+                                  </div>
+
+                                  <div class="form-group mb-0">
+                                    <button type="submit" class="btn btn-primary rounded-0 d-block ml-auto mr-0 tm-btn-animate tm-btn-submit tm-icon-submit"><span>Submit</span>				     </button>
+                                  </div>
+                                </form>    
+                            </div>
+                            
+                        </div>  
+                            
+ ```
+- Bundan sonra express-fileupload modülün de yardımıyla bundan sonra req.files.image nesnesi yardımıyla gönderilen görsel özelliklerine ulaşabilir.
+
+- Yüklenen görselleri public klasörünün içerisindeki uploads adlı klasöre yüklemek için önce klasör var mı yok mu diye kontrol etmek ve yoksa yeni klasör oluşturması için fs modülünden yararlandım. app.js dosyasına fs modülünü çağırdıktan sonra bu kontrolü sağlaması için app.post metodu içerisine gerekli olan kodları yazdım. 
+
+```
+app.post('/photos', async (req, res) => {
+ //Oluşturulmak istenen dosya
+  const uploadDir = 'public/uploads';
+
+  //eğer uploads klasörü yoksa public klasörünün içerisine oluşturma
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+```
+- Sonra bu görselin kendisini ve yüklenmek istenen dosya yolunu yakalayabilmek için gerekli kodları yazdım.
+
+```
+  //yüklenecek fotoğraf ile ilgili verilerin tutulması için
+  let uploadedImage = req.files.image;
+  //yüklenecek fotoğrafın gösterileceği yol yani adresi/__dirname(dosyanın kendisi+'fotoğrafın bulunacağı yol'+fotoğrafın adı)
+  let uploadPath = __dirname + '/public/uploads/' + uploadedImage.name;
+```
+- Son olarak da bu bilgileri görsele ait diğer bilgiler ile birlikte veritabanına yazdırdım ve bu yazdırdığım verileri fotoğrafın kendisine ait olan sayfaya yani photo.ejs dosyasına yönlendirme işlemini yapmış oldum.
+
+```
+//uzak sunucuda yani serverımızda başka klasöre ekleme
+  uploadedImage.mv(
+    uploadPath,
+    //fotoğrafın bilgilerine ek olarak fotoğrafın kendisini de yüklemek için ve bu fotoğrafın yoluyla brilikte veritabanına kaydetmek için post metoduyla gönderme
+    async () => {
+      await Photo.create({
+        ...req.body,
+        image: '/uploads/' + uploadedImage.name,
+      });
+      res.redirect('/');
+    }
+  );
+});
+```
+
+**Photo.ejs dosyasına yönlendirmesinin son hali**
+
+```
+app.post('/photos', async (req, res) => {
+  // req.files.image ile yüklediğimiz image ile ilgili bilgiler yer alır.
+  // console.log(req.files.image)
+
+  //Oluşturulmak istenen dosya
+  const uploadDir = 'public/uploads';
+
+  //eğer uploads klasörü yoksa public klasörünün içerisine oluşturma
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
+  //yüklenecek fotoğraf ile ilgili verilerin tutulması için
+  let uploadedImage = req.files.image;
+  //yüklenecek fotoğrafın gösterileceği yol yani adresi/__dirname(dosyanın kendisi+'fotoğrafın bulunacağı yol'+fotoğrafın adı)
+  let uploadPath = __dirname + '/public/uploads/' + uploadedImage.name;
+
+  //uzak sunucuda yani serverımızda başka klasöre ekleme
+  uploadedImage.mv(
+    uploadPath,
+    //fotoğrafın bilgilerine ek olarak fotoğrafın kendisini de yüklemek için ve bu fotoğrafın yoluyla brilikte veritabanına kaydetmek için post metoduyla gönderme
+    async () => {
+      await Photo.create({
+        ...req.body,
+        image: '/uploads/' + uploadedImage.name,
+      });
+      res.redirect('/');
+    }
+  );
+});
+
+```
+
+- En sonunda eklediğimiz fotoğrafı en son yüklenen tarihe göre sıralama yapması için app.js dosyasında gerekli kodu ekledim.
+
+```
+app.get('/', async (req, res) => {
+  //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
+  const photos = await Photo.find({}).sort('-dateCreated');
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
+  res.render('index', {
+    photos,
+  });
+});
+```
+
+**Sonucu**
+
+![pcataddnewphoto](https://user-images.githubusercontent.com/86554799/158489372-4e79a883-98a5-4708-9719-0e70bb70911a.jpg)
+
+![pcataddnewphoto2](https://user-images.githubusercontent.com/86554799/158489399-c70291bd-65b7-42f8-827a-5ef599181959.jpg)
+
+![pcatmongo](https://user-images.githubusercontent.com/86554799/158489541-f3c3cd94-69fe-46a2-b282-e689eddab967.jpg)
+
+![pcathomepage](https://user-images.githubusercontent.com/86554799/158489465-4865c376-c547-479b-9130-9440e2389c08.jpg)
+
+![pcatphotoejs2](https://user-images.githubusercontent.com/86554799/158489584-05719547-fb1c-428a-a65b-5dacf35dda1f.jpg)
+
