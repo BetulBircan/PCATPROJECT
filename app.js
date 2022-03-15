@@ -2,9 +2,11 @@ const express = require('express'); //express i app.js sayfasına dahil etme
 
 const mongoose = require('mongoose'); //mongoose u kullanmak için app.js dosyasına ekliyoruz.
 
+const fileUpload = require('express-fileupload'); //express-fileupload ı kullanmak için app.jsdosyasına ekliyoruz.
+
 const ejs = require('ejs'); //ejs template şablonunu kullanmak için ejs modülünü app.js sayfasına dahil etme
 
-const Photo = require('./models/Photo') //modelimizi app.js dosyasına dahil etme
+const Photo = require('./models/Photo'); //modelimizi app.js dosyasına dahil etme
 
 const app = express();
 
@@ -21,27 +23,29 @@ app.set('view engine', 'ejs'); //ejs yi kullanacağımızı gösteriyoruz.
 
 //MIDDLEWARES
 app.use(express.static('public')); //index.html,css gibi statik dosyaları ekleme
-app.use(express.urlencoded({extended:true})) //url deki datayı okumamızı sağlar
-app.use(express.json()) //url deki datayı json formatına dönüştürmemizi sağlar.
+app.use(express.urlencoded({ extended: true })); //url deki datayı okumamızı sağlar
+app.use(express.json()); //url deki datayı json formatına dönüştürmemizi sağlar.
+app.use(fileUpload()); //fileupload modülünü middleware olrak kullandığımızı belirtiyoruz.
+
 //ROUTES
 app.get('/', async (req, res) => {
   //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
-  const photos = await  Photo.find({})
+  const photos = await Photo.find({});
   //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
   res.render('index', {
-    photos
+    photos,
   });
 });
 
 //unique değer olan id özelliğini yakalayıp o id ye ait fotoğraf için photo.ejs dosyasını render etme
 app.get('/photos/:id', async (req, res) => {
   //fotoğrafin id sine göre listeleme
-  const photo = await  Photo.findById(req.params.id)
+  const photo = await Photo.findById(req.params.id);
   //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photo' isteğine karşılık photo.ejs dosyasını render ederiz.
   //Burada photo değişkenine gelen fotoğrafın özelliklerini photo.ejs dosyasına eklemiş oluyoruz.
   res.render('photo', {
-    photo
-  })
+    photo,
+  });
 });
 
 app.get('/about', (req, res) => {
@@ -53,10 +57,13 @@ app.get('/add', (req, res) => {
   res.render('add');
 });
 
-app.post('/photos', async  (req, res) => {
+app.post('/photos', async (req, res) => {
+
+  console.log(req.files.image)
+  
   //Uygulamamızdaki .post metodunu düzenlersek, add.ejs de formda grirlen bilgileri tutar ve '/' dosyasına yani index.ejs dosyasına yönlendirme yapar.
- await Photo.create(req.body)
-  res.redirect('/')
+  await Photo.create(req.body);
+  res.redirect('/');
 });
 
 const port = 3000;
