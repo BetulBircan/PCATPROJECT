@@ -321,4 +321,80 @@ app.get('/', async (req, res) => {
 
 ![pcataddphoto5](https://user-images.githubusercontent.com/86554799/158068218-412e3f0b-d3c7-4379-be5e-7fa3a52c2130.jpg)
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Anasayfada Bulunan Fotoğraflara Ait Olan Tekil Sayfaları Oluşturma
+- Anasayfada görüntülenen fotoğrafa tıkladığımızda bu fotoğrafa ait sayfasının görüntülenmesi işlemini yapmak için ilk başta photo.ejs adlı bir şablon oluşturdum ve diğer şablonlarda olduğu gibi gerekli düzenlemeleri yaptım.
 
+**Photo.ejs**
+```
+<%- include('./partials/_header') -%>
+<body>
+	<div class="tm-page-wrap mx-auto">
+		<div class="position-relative">
+			
+            <%- include('./partials/_navigation') -%>
+			
+            <div class="tm-welcome-container tm-fixed-header tm-fixed-header-1">
+				<div class="text-center">
+					<p class="pt-5 px-3 tm-welcome-text tm-welcome-text-2 mb-1 text-white mx-auto">Background image can be fixed. Content will simply slide over.</p>                	
+				</div>                
+            </div>
+
+			<!-- Header image -->
+            <div id="tm-fi
+            
+            <%- include('./partials/_footer') -%>
+```
+- Sonrasında bu fotoğrafları diğerlerinden ayırt edebilecek bir özellikten yararlanmak için mongodb nin otomotik olarak ürettiği id özelliğini kullandım ve bunu index.ejs dosyasında link özelliği olarak verdim.
+
+**index.ejs dosyası**
+
+```
+<div class="col-lg-4 col-md-6 col-sm-12 tm-catalog-item">
+                            <div class="position-relative tm-thumbnail-container">
+                                <img src="img/tn-01.jpg" alt="Image" class="img-fluid tm-catalog-item-img">    
+                                **<a href="/photos/<%=photos[i]._id %>" class="position-absolute tm-img-overlay">** özelliği burada vermiş oldum
+                                    <i class="fas fa-play tm-overlay-icon"></i>
+                                </a>
+                            </div>    
+                            <div class="p-4 tm-bg-gray tm-catalog-item-description">
+                                <h3 class="tm-text-primary mb-3 tm-catalog-item-title"> <%=photos[i].title %></h3>
+                                <p class="tm-catalog-item-text"> <%=photos[i].description %></p>
+                            </div>
+                        </div>
+                        <% } %>
+                    </div>
+```
+
+- Sonrasında fotoğrafa tıklandığında veritabanında bulunan id sine göre kendi tekil sayfasına yönlendirmesi için de app.js dosyasında gerekli olan kodları yazdım.
+
+```
+//unique değer olan id özelliğini yakalayıp o id ye ait fotoğraf için photo.ejs dosyasını render etme
+app.get('/photos/:id', async (req, res) => {
+  //fotoğrafin id sine göre listeleme
+  const photo = await  Photo.findById(req.params.id)
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photo' isteğine karşılık photo.ejs dosyasını render ederiz.
+  //Burada photo değişkenine gelen fotoğrafın özelliklerini photo.ejs dosyasına eklemiş oluyoruz.
+  res.render('photo', {
+    photo
+  })
+});
+```
+
+- En sonunda photo.ejs dosyasında başlığı ve açıklama kısmını bizim add.photodaki bilgileri girdiğimizde veritabanına kaydeden ve bu verileri bu sayfada gösteren gerekli kodları yazdım.
+
+```
+						<div class="col-xl-8 col-lg-7">
+							<!-- Video description -->
+							<div class="tm-video-description-box">
+								<h2 class="mb-5 tm-video-title"><%=photo.title %></h2>
+								<p class="mb-4"><%=photo.description %></p>	
+							</div>							
+						</div>
+```
+
+**Sonucu**
+
+![pcatanasayfa](https://user-images.githubusercontent.com/86554799/158261231-c700c051-4fc2-4c79-a185-5eef54657327.jpg)
+ 
+![pcatphotoejs](https://user-images.githubusercontent.com/86554799/158261255-05acccff-d60e-4bc4-8090-9782b6bd7321.jpg)
