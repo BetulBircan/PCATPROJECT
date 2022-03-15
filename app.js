@@ -32,7 +32,7 @@ app.use(fileUpload()); //fileupload modülünü middleware olrak kullandığım�
 //ROUTES
 app.get('/', async (req, res) => {
   //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
-  const photos = await Photo.find({});
+  const photos = await Photo.find({}).sort('-dateCreated');
   //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
   res.render('index', {
     photos,
