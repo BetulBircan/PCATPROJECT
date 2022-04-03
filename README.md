@@ -598,5 +598,13 @@ app.put('/photos/:id', async (req, res) => {
 
 **Sonuç**
 
-![pcat](./pcat.gif)
+![pcatupdate1](https://user-images.githubusercontent.com/86554799/161437998-7e0f4fee-9853-4d00-9408-6f3a7c4cec0b.jpg)
+
+![pcatupdate2](https://user-images.githubusercontent.com/86554799/161438022-be8bd36c-9085-4f46-a4df-e38c3b075335.jpg)
+
+![pcatupdate3](https://user-images.githubusercontent.com/86554799/161438027-ae866ac4-3847-4fcf-9926-5733576a9fa6.jpg)
+
+![pcatupdate4](https://user-images.githubusercontent.com/86554799/161438038-773f7a6e-a00d-4d68-b49b-8906783e0cd4.jpg)
+
+
 
