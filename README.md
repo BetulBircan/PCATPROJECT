@@ -598,5 +598,4 @@ app.put('/photos/:id', async (req, res) => {
 
 **Sonuç**
 
-![PCAT - Google Chrome 2022-04-03 17-58-10_](C:\Users\birca\Downloads\PCAT - Google Chrome 2022-04-03 17-58-10_.gif)
-
+![pcat]("C:\Users\birca\Downloads\pcat (2).gif")
