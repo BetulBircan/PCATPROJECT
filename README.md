@@ -598,5 +598,5 @@ app.put('/photos/:id', async (req, res) => {
 
 **Sonuç**
 
-![image](./pcat.gif)
+![pcat](./pcat.gif)
 
