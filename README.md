@@ -545,3 +545,58 @@ app.get('/', async (req, res) => {
 
 ![pcatphotoejs2](https://user-images.githubusercontent.com/86554799/158489584-05719547-fb1c-428a-a65b-5dacf35dda1f.jpg)
 
+# Fotoğraf Bilgilerini Güncellemek
+- Bu uygulamada yüklenilen fotoğraflara ait bilgilerini güncelleme işlemini yapacağım. Yani Update Details butonuna tıklandığında bir GET reguest sonucunda edit sayfası açılacak bu sayfada bulunan formda formlara ait olan önceki bilgiler bulunacak, bilgilerde bir değişiklik yapıldığının sonrasında POST request yardımıyla güncellenmiş bilgilerle tekil fotoğraf sayfasına yönelecek
+
+- Update butonuna tıklanıldığı zaman açılacak edit.ejs template'i add.ejs den faydalanarak oluşturdu . Güncellenecek Fotoğraf bilgisine ait olan _id yi de photo.ejs deki Update Details linkine href="/photos/edit/<%= post._id %>" de yakalıyoruz. İlgili yönlendirme de aşağıdaki gibi olacaktır.
+
+```
+//get request ile edi.ejs sayfasına yani fotoğraf bilgileri güncelleme sayfasına yönlendrme
+app.get('/photos/edit/:id', async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photos/edit/:id isteğine karşılık edit.ejs dosyasını render ederiz.
+  res.render('edit', {
+    photo,
+  });
+});
+```
+
+- Edit template sayfasına ulaşıldığında ise ilgili photo bilgisinin hali hazırda görünmesini istedim. Bunun için form alanlarındaki value değerlerini görmek gerekir. Bunun için aşağıdaki kodları  edit template içerisindeki ilgili form alanlarına yazdım.
+
+```
+<%= photo.title %>
+<%= photo.description %>
+```
+
+- Böylelikle "GET" request aşaması tamamlanmış oldu. Şimdi ise yapılması gereken değişen bu bilgileri "POST" request ile göndermek ancak değişen bilgileri göndermek için ben http PUT request kullandım. Tarayıcılar bu PUT requesti desteklemedikleri için yapılması gereken PUT requesti tarayıcının anlayacağı POST request şeklinde simüle etmek. Bunun için ise method-override modülünü kullandım.
+
+`npm i method-override`
+
+- Bu metodu çağırdım ve middleware olarak kayıt ettim.
+
+`const methodOverride = require('method-override');` //çağırma
+
+`app.use(methodOverride('_method'));`  //midleware
+
+- edit template içerisindeki formumda POST requesti PUT requeste dönüştürmek için aşağıdaki düzenlemeyi yaptım.
+
+`form method="POST" action="/photos/<%= photo._id %>?_method=PUT"`
+
+En sonunda app.js içerisindeki bu PUT request yönlendirmesini yaptım.
+
+```
+//put requesti ile fotoğraf verilerini güncelleme
+app.put('/photos/:id', async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  photo.title = req.body.title;
+  photo.description = req.body.description;
+  photo.save();
+
+  res.redirect(`/photos/${req.params.id}`)
+});
+```
+
+**Sonuç**
+
+![PCAT - Google Chrome 2022-04-03 17-58-10_](C:\Users\birca\Downloads\PCAT - Google Chrome 2022-04-03 17-58-10_.gif)
+
