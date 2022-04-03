@@ -598,5 +598,9 @@ app.put('/photos/:id', async (req, res) => {
 
 **Sonuç**
 
-![pcat-image](pcat.gif)
+<<<<<<< HEAD
+![pcat-image](./pcat.gif)
 
+=======
+![pcat](C:\Users\birca\OneDrive\Resimler\Masaüstü\node.js\PCAT\pcat.gif)
+>>>>>>> bd968aec7d1acc0ac5ba32b0ea39deca577004b3
