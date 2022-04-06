@@ -33,6 +33,11 @@ app.use(express.urlencoded({ extended: true })); //url deki datayı okumamızı 
 app.use(express.json()); //url deki datayı json formatına dönüştürmemizi sağlar.
 app.use(fileUpload()); //fileupload modülünü middleware olrak kullandığımızı belirtiyoruz.
 app.use(methodOverride('_method')); //burada Put yani güncelleme işlemini Post olarak simüle etme
+app.use(
+  methodOverride('_method', {
+    methods: ['POST', 'GET'],
+  })
+); //burada delete yani silme işlemi için post olarak simüle etme ve get isteği yapma
 
 //ROUTES
 app.get('/', async (req, res) => {
@@ -116,7 +121,13 @@ app.put('/photos/:id', async (req, res) => {
   photo.description = req.body.description;
   photo.save();
 
-  res.redirect(`/photos/${req.params.id}`)
+  res.redirect(`/photos/${req.params.id}`);
+});
+
+//delete requesti ile fotoğrafı silme
+app.delete('/photos/:id', async (req, res) => {
+  await Photo.findByIdAndRemove(req.params.id);
+  res.redirect('/photos/')
 });
 
 const port = 3000;
