@@ -126,8 +126,11 @@ app.put('/photos/:id', async (req, res) => {
 
 //delete requesti ile fotoğrafı silme
 app.delete('/photos/:id', async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  let deletedImage = __dirname + '/public' + photo.image;
+  fs.unlinkSync(deletedImage);
   await Photo.findByIdAndRemove(req.params.id);
-  res.redirect('/')
+  res.redirect('/');
 });
 
 const port = 3000;
