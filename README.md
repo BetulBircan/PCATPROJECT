@@ -810,3 +810,6 @@ app.get('/add', pageController.getAddPage); //add sayfasına yönlendirme
 app.get('/photos/edit/:id', pageController.getEditPage); //get request ile edi.ejs sayfasına yani fotoğraf bilgileri güncelleme sayfasına yönlendirme
 
 ```
+
+![mvc](https://user-images.githubusercontent.com/86554799/162537826-80ffc968-b387-472a-9e1a-de4d27d3da17.jpg)
+
