@@ -606,5 +606,41 @@ app.put('/photos/:id', async (req, res) => {
 
 ![pcatupdate4](https://user-images.githubusercontent.com/86554799/161438038-773f7a6e-a00d-4d68-b49b-8906783e0cd4.jpg)
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Fotoğraf Silmek
+- Bu uygulamada fotoğrafı silme işlemini yapcağım. Bunun için ilk olarak silme işlemini yaparken herhangi bir forma gerek olmadığı için photo.ejs dosyasına aşağıdaki kodu DELETE PHOTO butonuna link olarak ekleyeceğiz.
 
+```
+	<a href="/photos/<%= photo._id %>?_method=DELETE"
+	class="btn btn-danger p-0 tm-btn-animate tm-btn-download tm-icon-download"><span>Delete Photo</span></a>
+```
+
+- Daha sonra bir fotoğrafı silindiğinde ek olarak bu fotoğrafı fiziksel olarak da ilgili fotoğrafı silmek istenir. Bunun için yine Node.js çekirdek modülü olan fs modülünden faydalandım. app.js dosyasında bulunan ilgili DELETE requeste ait olan yönlendirmeyi aşağıdaki gibi düzenledim.
+
+```
+//delete requesti ile fotoğrafı silme
+app.delete('/photos/:id', async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  let deletedImage = __dirname + '/public' + photo.image;
+  fs.unlinkSync(deletedImage);
+  await Photo.findByIdAndRemove(req.params.id);
+  res.redirect('/');
+});
+```
+
+- En sonunda ilgili fotoğrafı silmek için silmeden önce bir onaylama popup açmak istedim. Bunun için de photo.ejs dosyasında bulunan DELETE PHOTO aşağıdaki güncellemeyi yaptım.
+
+```
+<a href="/photos/<%= photo._id %>?_method=DELETE"
+class="btn btn-danger p-0 tm-btn-animate tm-btn-download tm-icon-download"
+onclick="confirm('Are you sure you want to delete this photo?')"><span>Delete Photo</span></a>
+```
+
+**Sonuc**
+
+![pcat](https://media.giphy.com/media/qzBWudks8vQypAMTfC/giphy.gif)
+
+![mongodbsilme](https://user-images.githubusercontent.com/86554799/162460615-8a4b2171-1ab3-40cb-8622-8c6aeb9a02c9.jpg)
+
+![uploads klasörü](https://user-images.githubusercontent.com/86554799/162460748-96d9dbf1-3998-4a81-9792-db8b61ee2eea.jpg)
 
