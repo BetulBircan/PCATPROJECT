@@ -1,7 +1,7 @@
 //Fotoğraf ile ilgili gelen isteklere karşı yönlendirmeler burada yapılır.
 
 const Photo = require('../models/Photo'); //model dosyası içerisinde photo modelini çağırma
-const fs = require('fs'); //fs modülüni çağırma
+const fs = require('fs'); //dosya işlemleri için(dosya oluşturmaisilmeiokuma, vb) fs modülünü  çağırma
 
 //Bütün Fotoğraflar burada listelenir.
 exports.getAllPhotos = async (req, res) => {
@@ -44,7 +44,7 @@ exports.createPhoto = async (req, res) => {
   //yüklenecek fotoğraf ile ilgili verilerin tutulması için
   let uploadedImage = req.files.image;
   //yüklenecek fotoğrafın gösterileceği yol yani adresi/__dirname(dosyanın kendisi+'fotoğrafın bulunacağı yol'+fotoğrafın adı)
-  let uploadPath = __dirname + '/public/uploads/' + uploadedImage.name;
+  let uploadPath = __dirname + '/../public/uploads/' + uploadedImage.name;
 
   //uzak sunucuda yani serverımızda başka klasöre ekleme
   uploadedImage.mv(
@@ -73,7 +73,7 @@ exports.updatePhoto = async (req, res) => {
 //Fotoğraf silme işlemi burada yapılır.
 exports.deletePhoto = async (req, res) => {
   const photo = await Photo.findOne({ _id: req.params.id });
-  let deletedImage = __dirname + '/public' + photo.image;
+  let deletedImage = __dirname + '/../public' + photo.image;
   fs.unlinkSync(deletedImage);
   await Photo.findByIdAndRemove(req.params.id);
   res.redirect('/');
