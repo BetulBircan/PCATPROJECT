@@ -644,3 +644,172 @@ onclick="confirm('Are you sure you want to delete this photo?')"><span>Delete Ph
 
 ![uploads klasörü](https://user-images.githubusercontent.com/86554799/162460748-96d9dbf1-3998-4a81-9792-db8b61ee2eea.jpg)
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# PCAT Projesini MVC(Model View Controller) Yapısına Dönüştürmek
+- Bu zamana kadar aslında projede tüm yönlendirmeleri ve bu yönlendirmelere karşılık yapılan işlemlerin tamamını app.js dosyası içerisinde yapımışıtm. Açıkcası bu projede şimdiye kadar bir sorun çıkmış değil ancak özellikle büyük ölçekli projelerin yönetimi ve hata yakalaması açısında kodu işlevsel açıdan farklı dosyalara bölmek işleri kolaylaştırır. Bu yüzden burada ben MVC yapısını kullanacağım.
+
+**MVC Nedir?**
+
+MVC - Model View Controller - uygulama kodunu Model, View ve Controller olmak üzere birbirine bağlı üç öğeye ayrılmasını içeren bir yazılım mimari yapısıdır.
+
+**Model**
+
+Uygulamanın veri yapısını ve veri tabanı ile ilişkisini tanımlar. Schema "şablon" yapısı sayesinde veri özellikleri belirlenir.
+
+**View**
+
+Uygulamanın son kullanıcılara görünen bölümünü temsil eder. Son kullanıcıya gösterilecek veri özelleştirilebilir.
+
+**Controller**
+
+Son kullanıcıdan gelen isteklerin uygun View'e yönlendirilmesi kontrol edilir. İstek, cevap işleyicisi olarak da tanımlanır.
+
+- Bu projede model ve view klasörleri oluşturulup gerekli işlemler yapılmıştı. Bu kısımda da app.js de bulunan yönledirmeleri yani get, post, put, delete yönlendirmelerini controller yapısına dönüştürme işlemini gerçekleştirme çalışmaları yaptım.
+
+- İlk olarak controllers adlı klasörü oluşturdum ve  içerisine fotoğraf ile ilgili olan kısımlar için photoController.js dosyasını oluşturdum ve app.js içerisindeki tüm yönlendirmeleri bu dosyaya taşıdım. Yapılan tüm işlemlere özel fonksiyon isimleri tanımlanarak oluşturulan photoController.js dosyasının son hali aşağıdaki gibidir.
+
+**photoController.js**
+
+```
+//Fotoğraf ile ilgili gelen isteklere karşı yönlendirmeler burada yapılır.
+
+const Photo = require('../models/Photo'); //model dosyası içerisinde photo modelini çağırma
+const fs = require('fs'); //dosya işlemleri için(dosya oluşturmaisilmeiokuma, vb) fs modülünü  çağırma
+
+//Bütün Fotoğraflar burada listelenir.
+exports.getAllPhotos = async (req, res) => {
+  //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
+  const photos = await Photo.find({}).sort('-dateCreated');
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
+  res.render('index', {
+    photos,
+  });
+};
+
+//Tek bir fotoğrafı getirme işlemi burada yapılır. unique değer olan id özelliğini yakalayıp o id ye ait fotoğraf için photo.ejs dosyasını render etme
+exports.getPhoto = async (req, res) => {
+  //fotoğrafin id sine göre listeleme
+  const photo = await Photo.findById(req.params.id);
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photo' isteğine karşılık photo.ejs dosyasını render ederiz.
+  //Burada photo değişkenine gelen fotoğrafın özelliklerini photo.ejs dosyasına eklemiş oluyoruz.
+  res.render('photo', {
+    photo,
+  });
+};
+
+//Yeni bir fotoğraf ekleme işlemi burada yapılır.
+exports.createPhoto = async (req, res) => {
+  // req.files.image ile yüklediğimiz image ile ilgili bilgiler yer alır.
+  // console.log(req.file ns.image)
+
+  //Uygulamamızdaki .post metodunu düzenlersek, add.ejs de formda grirlen bilgileri tutar ve '/' dosyasına yani index.ejs dosyasına yönlendirme yapar.
+  // await Photo.create(req.body);
+  // res.redirect('/');
+
+  //Oluşturulmak istenen dosya
+  const uploadDir = 'public/uploads';
+
+  //eğer uploads klasörü yoksa public klasörünün içerisine oluşturma
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
+
+  //yüklenecek fotoğraf ile ilgili verilerin tutulması için
+  let uploadedImage = req.files.image;
+  //yüklenecek fotoğrafın gösterileceği yol yani adresi/__dirname(dosyanın kendisi+'fotoğrafın bulunacağı yol'+fotoğrafın adı)
+  let uploadPath = __dirname + '/../public/uploads/' + uploadedImage.name;
+
+  //uzak sunucuda yani serverımızda başka klasöre ekleme
+  uploadedImage.mv(
+    uploadPath,
+    //fotoğrafın bilgilerine ek olarak fotoğrafın kendisini de yüklemek için ve bu fotoğrafın yoluyla brilikte veritabanına kaydetmek için post metoduyla gönderme
+    async () => {
+      await Photo.create({
+        ...req.body,
+        image: '/uploads/' + uploadedImage.name,
+      });
+      res.redirect('/');
+    }
+  );
+};
+
+//Fotoğraf güncelleme işlemi burada yapılır.
+exports.updatePhoto = async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  photo.title = req.body.title;
+  photo.description = req.body.description;
+  photo.save();
+
+  res.redirect(`/photos/${req.params.id}`);
+};
+
+//Fotoğraf silme işlemi burada yapılır.
+exports.deletePhoto = async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  let deletedImage = __dirname + '/../public' + photo.image;
+  fs.unlinkSync(deletedImage);
+  await Photo.findByIdAndRemove(req.params.id);
+  res.redirect('/');
+};
+
+```
+
+- Sonrasında app.js dosyasında bunları çağırma işlemi yaptım.
+
+**app.js**
+
+```
+//ROUTES
+app.get('/',photoController.getAllPhotos);  //Bütün fotoğraflar
+app.get('/photos/:id', photoController.getPhoto );  //tek bir fotoğrafı göstermek için
+app.post('/photos', photoController.createPhoto);  //yeni bir fotoğraf ekleme
+app.put('/photos/:id', photoController.updatePhoto); //put requesti ile fotoğraf verilerini güncelleme
+app.delete('/photos/:id', photoController.deletePhoto);  //delete requesti ile fotoğrafı silme
+
+```
+
+- Daha sonra about, addphoto ve güncelleme işlemi yapılması için oluşturulan edit.js dosyası için controllers klasörünün içerisine pageController.js dosyası oluşturdum ve içerisindeki tüm yönlendirmeleri bu dosyaya taşıdım. Yapılan tüm işlemlere özel fonksiyon isimleri tanımlanarak oluşturulan pageController.js dosyasının son hali aşağıdaki gibidir.
+
+**pageController.js**
+
+```
+//About, Add Photo ve Fotoğraf güncellemesi için oluştutulan edit.ejs sayfalarına yönlendirme işlemleri burada yapılır.
+
+const Photo = require('../models/Photo'); //model dosyası içerisinde photo modelini çağırma
+
+//About yani hakkımızda sayfasına yönlendirmeyle ilgili işlemler burada yapılır.
+exports.getAboutPage = (req, res) => {
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/about' isteğine karşılık about.ejs dosyasını render ederiz.
+  res.render('about');
+};
+
+//Add yani fotoğraf ekleme sayfasına yönlendirmeyle ilgili işlemler burada yapılır.
+exports.getAddPage = (req, res) => {
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/'add isteğine karşılık add.ejs dosyasını render ederiz.
+  res.render('add');
+};
+
+//Fotoğraf güncellemesi için oluşturulan edit.ejs dosyasına yönledirme işlemleri burada yapılır.
+exports.getEditPage = async (req, res) => {
+  const photo = await Photo.findOne({ _id: req.params.id });
+  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/photos/edit/:id isteğine karşılık edit.ejs dosyasını render ederiz.
+  res.render('edit', {
+    photo,
+  });
+};
+
+```
+
+- Sonrasında app.js dosyasında bunları çağırma işlemi yaptım.
+
+**app.js**
+
+```
+app.get('/about', pageController.getAboutPage); //about sayfasına yönlendirme
+app.get('/add', pageController.getAddPage); //add sayfasına yönlendirme
+app.get('/photos/edit/:id', pageController.getEditPage); //get request ile edi.ejs sayfasına yani fotoğraf bilgileri güncelleme sayfasına yönlendirme
+
+```
+
+![mvc](https://user-images.githubusercontent.com/86554799/162537826-80ffc968-b387-472a-9e1a-de4d27d3da17.jpg)
+
