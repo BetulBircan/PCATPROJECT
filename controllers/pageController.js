@@ -1,4 +1,4 @@
-//About, Add Photo ve Fotoğraf güncellemesi için oluştutulan edit.ejs sayfalarına yönlendirme işlemleri burada yapılır.
+//About, Add Photo ve Fotoğraf güncellemesi için oluşturulan edit.ejs sayfalarına yönlendirme işlemleri burada yapılır.
 
 const Photo = require('../models/Photo'); //model dosyası içerisinde photo modelini çağırma
 

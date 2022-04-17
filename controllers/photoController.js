@@ -5,12 +5,30 @@ const fs = require('fs'); //dosya işlemleri için(dosya oluşturmaisilmeiokuma,
 
 //Bütün Fotoğraflar burada listelenir.
 exports.getAllPhotos = async (req, res) => {
-  //veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
+
+  const page = req.query.page || 1;  //Başlangıç sayfamız veya ilk sayfamız.
+  const photoPerPage = 3 // Her sayfada bulunan fotoğraf sayısı
+  
+  const totalPhotos = await Photo.find().countDocuments(); //Toplam fotoğraf sayısı
+  const photos = await Photo.find({})
+  .sort('-dateCreated') //Fotoğrafları alıyoruz
+  .skip((page-1)*photoPerPage)  //Her sayfanın kendi fotoğraflarını listelemesi için
+  .limit(photoPerPage) //Her sayfada olmasını istediğimiz fotoğraf sayısını sınırlıyoruz.
+
+  res.render('index', {
+    photos : photos,
+    current: page,
+    pages: Math.ceil(totalPhotos/photoPerPage)
+
+  })
+  
+  /* console.log(req.query)
+  veritabanındakifotoğrafları index.ejs dosyasında göstermek istiyoruz.
   const photos = await Photo.find({}).sort('-dateCreated');
-  //Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
+  Uygulamamızdaki .get metodunu düzenlersek, bu şekilde '/' isteğine karşılık index.ejs dosyasını render ederiz.
   res.render('index', {
     photos,
-  });
+  }); */
 };
 
 //Tek bir fotoğrafı getirme işlemi burada yapılır. unique değer olan id özelliğini yakalayıp o id ye ait fotoğraf için photo.ejs dosyasını render etme
