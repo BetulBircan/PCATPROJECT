@@ -1,7 +1,7 @@
 # PCAT Projesi
 ## Projeden İstenilenler 1.Kısım
-PCAT prpjesi,sayfamıza fotoğraf yükleyebilmek,silmek, yeni açıklamalar eklemek üzere oluşturulmuş bir projedir.
-PCAT projesini farklı ödevlere ayırarak yapmaya çalışacağız. Bu ödevimizde yapılması gerekenler:
+PCAT projesi,sayfamıza fotoğraf yükleyebilmek,silmek, yeni açıklamalar eklemek üzere oluşturulmuş bir projedir.
+PCAT projesini farklı bölümlere ayırarak yapmaya çalışacağız. Bu projede yapılması gerekenler:
 
 - PCAT proje klasörünü oluşturalım.
 
